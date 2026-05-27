@@ -1,0 +1,109 @@
+import numpy as np
+import random
+primat= [[0,0,0],[0,0,0],[0,0,0]]
+def rev (a):
+  reva= np.array ([[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0]])
+  for i in range (9):
+    for j in range (9):
+      if a[i][j]==1:
+        reva[i][j]=0
+      else:
+        reva[i][j]=1
+  return reva
+
+def fitness (osob):
+  fitnesscnt=0
+  for i in range (9):
+    fitnesscnt+=len(set(osob[i]))
+  for k in range (9):
+    stolb=set()
+    for j in range (9):
+      stolb.add(osob[j][k])
+    fitnesscnt+=len(stolb)
+  for h in [0,3,6]:
+    for l in [0,3,6]:
+      square=set()
+      square.update([osob[0+l][0+h],osob[0+l][1+h],osob[0+l][2+h],
+                     osob[1+l][0+h],osob[1+l][1+h],osob[1+l][2+h],
+                     osob[2+l][0+h],osob[2+l][1+h],osob[2+l][2+h]])
+      fitnesscnt+=len(square)
+  return fitnesscnt
+
+def selection (generation):
+  population = [(osob, fitness(osob)) for osob in generation]
+  population.sort(key=lambda x: x[1], reverse=True)
+  nextgeneration=population[:len(population)//2]
+  otbor=[0]*len(nextgeneration)
+  for i in range (len(nextgeneration)):
+    otbor[i]=nextgeneration[i][0]
+  return otbor
+
+
+def gens (h):
+    genmama=np.random.randint(0,2, size=(9, 9))
+    genpapa=rev(genmama)
+    return genmama,genpapa
+
+def child (mamag,papag,mama,papa):
+  cmama = np.array([[0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0]])
+  cpapa = np.array([[0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0]])
+  cchild = np.array([[0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0]])
+  for i in range (9):
+    for j in range (9):
+      cmama[i][j]= mama[i][j]*mamag[i][j]
+  for i in range (9):
+    for j in range (9):
+      cpapa[i][j]= papa[i][j]*papag[i][j]
+  for i in range (9):
+    for j in range (9):
+      if cpapa[i][j]!=0:
+        cchild[i][j]=cpapa[i][j]
+      else:
+        cchild[i][j]=cmama[i][j]
+  return cchild
+
+
+def nextgeneration (otbor):
+  nextgen=[0]*100
+  for i in range (100):
+    mamanum = random.randint(1, len(otbor)-1)
+    papanum = random.randint(1, len(otbor)-1)
+    mamag,papag=gens(i)
+    nextgen[i]= child(mamag,papag,otbor[mamanum],otbor[papanum])
+  return nextgen
+
+
+
+generation1 = [np.random.randint(1, 10, size=(9, 9)) for _ in range(100)]
+vizhivsh=selection(generation1)
+for i in range (100):
+  generation2=nextgeneration(vizhivsh)
+  vizhivsh=selection(generation2)
+reshenie = selection(generation2)
+
+
+print (reshenie[0],fitness(reshenie[0]))
