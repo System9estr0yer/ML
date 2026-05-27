@@ -1,0 +1,56 @@
+import random
+import pygame
+import matplotlib.pyplot as plt
+import numpy as np
+
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.cluster = None
+
+
+
+def generate_points(count_of_centers = 3, count_of_point = 10):
+    points = []
+    for _ in range(count_of_centers):
+        centerX, centerY = random.random(), random.random()
+        for _ in range(count_of_point):
+            x= random.gauss(centerX, sigma=0.5)
+            y= random.gauss(centerY, sigma=0.5)
+            points.append(Point(x, y))
+    return np.array(points)
+points= generate_points()
+for i in points:
+    print (i.x, i.y)
+
+plt.figure(figsize=(10,5))
+plt.subplot(1,2,1)
+pointsXY=np.array([[p.x,p.y] for p in points])
+
+samdbscan = []
+for i in pointsXY:
+    samdbscan.append([i[0], i[1], 0])
+clust=1
+for j in samdbscan:
+    min_s=[j]
+    for k in samdbscan:
+        if (k[2]==0 and j[2]==0) and ((abs(j[0] - k[0])**2 + abs(j[1] - k[1])**2)**(1/2) <= 0.3):
+            min_s.append(k)
+            if len(min_s)==4:
+                for l in min_s:
+                    l[2]=clust
+        if (k[2]==0 and j[2]!=0) and ((abs(j[0] - k[0])**2 + abs(j[1] - k[1])**2)**(1/2) <= 0.3):
+            k[2]=j[2]
+        if (k[2]!=0 and j[2]==0) and ((abs(j[0] - k[0])**2 + abs(j[1] - k[1])**2)**(1/2) <= 0.3):
+            j[2]=k[2]
+        if (k[2]!=0 and j[2]!=0) and ((abs(j[0] - k[0])**2 + abs(j[1] - k[1])**2)**(1/2) <= 0.3):
+            for b in samdbscan:
+                if b[2]==j[2]:
+                    b[2]=k[2]
+    clust+=1
+for n in samdbscan:
+    print (n[0],n[1],n[2])
+samdbscanarr = np.array(samdbscan)
+plt.scatter(samdbscanarr[:,0],samdbscanarr[:,1],c=samdbscanarr[:,2])
+plt.show()
