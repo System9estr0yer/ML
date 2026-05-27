@@ -1,0 +1,56 @@
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.decomposition import PCA
+import random
+
+def clustered (a,b):
+  for i in range (len (a)):
+    if (((a[i][0]-b[0][0])2 +(a[i][1]-b[0][1])**2)(1/2) <= ((a[i][0]-b[1][0])2 +(a[i][1]-b[1][1])**2)(1/2)) and (((a[i][0]-b[0][0])2 +(a[i][1]-b[0][1])**2)(1/2)<= ((a[i][0]-b[2][0])2 +(a[i][1]-b[2][1])**2)(1/2)):
+      a[i][2]=1
+    elif (((a[i][0]-b[1][0])2 +(a[i][1]-b[1][1])**2)(1/2) <= ((a[i][0]-b[0][0])2 +(a[i][1]-b[0][1])**2)(1/2)) and (((a[i][0]-b[1][0])2 +(a[i][1]-b[1][1])**2)(1/2) <=((a[i][0]-b[2][0])2 +(a[i][1]-b[2][1])**2)(1/2)):
+      a[i][2]=2
+    else:
+      a[i][2]=3
+  return a
+
+def obnov_clust (a,b):
+  k=[[0,0] for _ in range (len(b))]
+  for j in range (len(b)):
+    sumx=0
+    sumy=0
+    cnt=0
+    for i in range (len (a)):
+      if a[i][2]==j+1:
+        sumx+=a[i][0]
+        sumy+=a[i][1]
+        cnt+=1
+    k[j][0]=sumx/cnt
+    k[j][1]=sumy/cnt
+  return k
+
+
+
+
+cluster1 = [random.uniform(-4, 4),random.uniform(-1.5, 1.5)]
+cluster2 = [random.uniform(-4, 4),random.uniform(-1.5, 1.5)]
+cluster3 = [random.uniform(-4, 4),random.uniform(-1.5, 1.5)]
+clusters = [cluster1,cluster2,cluster3]
+
+x, _ = load_iris(return_X_y=True)
+pca = PCA(n_components=2)
+iris_2d = pca.fit_transform(x) 
+iris_3d = [[0, 0, 0] for _ in range(len(iris_2d))]
+for i in range (len(iris_2d)):
+  iris_3d[i][1]=iris_2d[i][1]
+  iris_3d[i][0]=iris_2d[i][0]
+
+
+for i in range (50):
+  iris_3d=clustered(iris_3d,clusters)
+  clusters=obnov_clust(iris_3d,clusters)
+labels = [p[2] for p in iris_3d]
+
+
+plt.figure(figsize=(6, 5))
+plt.scatter(iris_2d[:, 0], iris_2d[:, 1],c=labels)
+plt.show()
